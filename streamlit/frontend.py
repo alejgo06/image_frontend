@@ -5,10 +5,15 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import config
+from utils import plot_image
+
 st.title('App')
 
 st.subheader('Detector')
 image_file = st.file_uploader("Upload a file", type=("png","jpg"))
+
+
+
 if st.button('Plot image'):
     if image_file is None:
         st.write("load a image")
@@ -51,5 +56,14 @@ if st.button('Execute model'):
     else:
         #url='http://127.0.0.1:8000/predict'
         st.write(f"the url is {url}")
-        response = requests.post(url, files={"image_file_read": ("filename", image_file.read(), "image/jpeg")})
+        image=image_file.read()
+        file2 = base64.b64encode(image)
+        jpg = base64.b64decode(file2)
+        jpg_as_np2 = np.frombuffer(jpg, dtype=np.uint8)
+        original_image2 = cv2.imdecode(jpg_as_np2, flags=1)
+        plt.imshow(cv2.cvtColor(original_image2, cv2.COLOR_BGR2RGB))
+        plt.show()
+        st.pyplot()
+
+        response = requests.post(url, files={"image_file_read": ("filename", image, "image/jpeg")})
         st.write(response.text)
