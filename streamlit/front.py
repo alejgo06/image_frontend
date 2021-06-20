@@ -20,49 +20,54 @@ def requestFastAPIEndpoint(image_file,url):
     response = requests.post(url, files={"image_file_read": ("filename", image, "image/jpeg")})
     return response.text
 
-st.title('App')
+st.title('App VQA')
 
-st.subheader('Detector')
+st.subheader('1º Cargar una imagen')
+
+image_file = st.file_uploader("Upload a file", type=("png","jpg"))
+
+st.subheader('2º Formular una pregunta sobre la imagen')
+
+inputText = st.radio( "¿Cómo quieres introducir la pregunta?",('Texto libre', 'Voz'))
+
+
+
+def stt():
+    try:
+        r2 = sr.Recognizer()
+        with sr.AudioFile("recorded.wav") as source:
+            audio2 = r2.record(source)  # read the entire audio file
+        message1 = r2.recognize_google(audio2, language="es-ES")
+        print("Google Speech Recognition " + message1)
+        st.write(message1)
+    # except sr.UnknownValueError:
+    #    print("Google Speech Recognition could not understand audio")
+    # except sr.RequestError as e:
+    #    print("Could not request results from Google Speech Recognition service; {0}".format(e))
+
+    # recognize speech using Sphinx
+    except:
+        message1 = r2.recognize_sphinx(audio2, language="es-ESmio")
+        print("Sphinx " + message1)
+        st.write(message1)
+    return message1
 
 if st.button('Record'):
+    print("lanza record audio")
     with st.spinner(f'Recording for {10} seconds ....'):
         sound.record()
     st.success("Recording completed")
     audio_file = open("recorded.wav", 'rb')
     audio_bytes = audio_file.read()
     st.audio(audio_bytes, format='audio/wav')
-    r2 = sr.Recognizer()
-    with sr.AudioFile("recorded.wav") as source:
-        audio2 = r2.record(source)  # read the entire audio file
 
-    # recognize speech using Google Speech Recognition
-    try:
-        # for testing purposes, we're just using the default API key
-        # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
-        # instead of `r.recognize_google(audio)`
-        message=r2.recognize_google(audio2, language="es-ES")
-        print("Google Speech Recognition thinks you said " + message)
-        st.write(message)
-    except sr.UnknownValueError:
-        print("Google Speech Recognition could not understand audio")
-    except sr.RequestError as e:
-        print("Could not request results from Google Speech Recognition service; {0}".format(e))
+if inputText=='Voz':
+    message=stt()
+else:
+    message = st.text_area("pregunta", "")
 
-        # recognize speech using Sphinx
-    try:
-        message=r2.recognize_sphinx(audio2, language="es-ESmio")
-        print("Sphinx thinks you said " + message)
-
-        st.write(message)
-    except sr.UnknownValueError:
-        print("Sphinx could not understand audio")
-    except sr.RequestError as e:
-        print("Sphinx error; {0}".format(e))
-
-image_file = st.file_uploader("Upload a file", type=("png","jpg"))
-
-message = st.text_area("pregunta", "")
-
+if st.button('ver pregunta'):
+    st.write(message)
 
 if st.button('Execute model'):
     st.write(message)

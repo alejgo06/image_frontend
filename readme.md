@@ -1,4 +1,4 @@
-# image capabilities service
+# image frontend service
 
 This ui allow upload image and predict some features. This UI call rest api endpoints
 
